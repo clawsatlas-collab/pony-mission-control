@@ -3,475 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pony Mission Control | Enterprise Edition</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --glow-blue: rgba(59, 130, 246, 0.5);
-            --glow-green: rgba(16, 185, 129, 0.5);
-            --glow-amber: rgba(245, 158, 11, 0.5);
-        }
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #05070A;
-            color: #F8FAFC;
-        }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        
-        .card {
-            background-color: #0B0E14;
-            border: 1px solid #1E293B;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .card:hover {
-            border-color: #334155;
-            background-color: #121720;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px -15px rgba(0,0,0,0.5);
-        }
-
-        .status-dot {
-            height: 8px;
-            width: 8px;
-            border-radius: 50%;
-            display: inline-block;
-            transition: all 0.5s ease;
-        }
-        .status-online { 
-            background-color: #10B981; 
-            box-shadow: 0 0 12px #10B981; 
-        }
-        .status-busy { 
-            background-color: #F59E0B; 
-            box-shadow: 0 0 12px #F59E0B; 
-        }
-        .status-offline { background-color: #64748B; }
-
-        /* Glow effect for active models */
-        .glow-active {
-            box-shadow: 0 0 20px -5px var(--glow-blue);
-        }
-        
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-track { background: #05070A; }
-        ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #3B82F6; }
-
-        @keyframes marquee {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-        .animate-marquee {
-            display: inline-block;
-            animation: marquee 40s linear infinite;
-        }
-        .animate-marquee:hover {
-            animation-play-state: paused;
-        }
-
-        .modal-overlay {
-            background-color: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(8px);
-        }
-
-        [x-cloak] { display: none !important; }
-    </style>
+    <title>ORBITAL COMMAND | Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="antialiased overflow-x-hidden" x-data="missionControl()">
-
-    <!-- Sports Ticker -->
-    <div class="w-full bg-[#0B0E14] border-b border-[#1E293B] py-2 overflow-hidden whitespace-nowrap z-50 relative">
-        <div class="inline-block animate-marquee">
-            <template x-for="score in sportsScores" :key="score.id">
-                <span class="mx-12 text-[10px] font-bold tracking-[0.2em] uppercase mono">
-                    <span class="text-gray-400" x-text="score.league + ' : '"></span>
-                    <span x-text="score.teams"></span>
-                    <span class="text-blue-400 ml-3" x-text="score.score"></span>
-                    <span class="ml-3 text-gray-500 font-medium" x-text="score.status"></span>
-                </span>
-            </template>
-        </div>
-    </div>
-
-    <main class="p-8 max-w-[1600px] mx-auto space-y-12">
-        
-        <!-- Header & Financial Command -->
-        <header class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-8">
-            <div>
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="w-2 h-8 bg-blue-600 rounded-full"></div>
-                    <h1 class="text-3xl font-black tracking-tighter uppercase italic">Pony Mission Control</h1>
-                </div>
-                <p class="text-gray-500 text-xs font-medium tracking-widest uppercase ml-5">
-                    Enterprise Agentic OS <span class="text-blue-500 mx-2">/</span> v5.0.1 Platinum <span class="text-blue-500 mx-2">/</span> <span class="text-green-500">System Nominal</span>
-                </p>
-            </div>
-            
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-6 w-full xl:w-auto">
-                <div class="card p-5 rounded-xl border-l-4 border-l-blue-600 bg-gradient-to-br from-[#0B0E14] to-[#05070A]">
-                    <span class="text-[10px] uppercase tracking-[0.2em] text-gray-500 mb-2 block font-bold">Total Daily Spend</span>
-                    <span class="text-2xl font-bold mono">$142.82</span>
-                </div>
-                <div class="card p-5 rounded-xl border-l-4 border-l-emerald-600 bg-gradient-to-br from-[#0B0E14] to-[#05070A]">
-                    <span class="text-[10px] uppercase tracking-[0.2em] text-gray-500 mb-2 block font-bold">Monthly Forecast</span>
-                    <span class="text-2xl font-bold mono">$4,280.00</span>
-                </div>
-                <div class="card p-5 rounded-xl flex flex-col justify-center items-center group cursor-pointer hover:border-blue-500 ring-offset-black hover:ring-2 ring-blue-500/20" @click="showAudit = true">
-                    <span class="text-[10px] uppercase tracking-[0.2em] text-blue-400 font-black group-hover:text-blue-300 transition-colors">Launch Query Audit</span>
-                    <svg class="w-5 h-5 mt-2 text-blue-500 group-hover:translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                </div>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo">Orbital Command</div>
+            <nav class="nav-links">
+                <a href="index.html" class="active">Dashboard</a>
+                <a href="kanban.html">Operations</a>
+                <a href="#">Intelligence</a>
+                <a href="#">Logistics</a>
+            </nav>
+            <div style="font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary);">
+                SYS_STATUS: <span style="color: var(--success-color)">OPTIMAL</span>
             </div>
         </header>
 
-        <!-- Model Intelligence Hub -->
-        <section>
-            <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-3">
-                    <h2 class="text-sm font-bold uppercase tracking-[0.3em] text-gray-400">Model Intelligence Hub</h2>
-                    <div class="h-[1px] w-24 bg-gray-800"></div>
-                </div>
-                <span class="text-[10px] font-bold text-green-500 bg-green-500/10 px-3 py-1 rounded-full border border-green-500/20 flex items-center gap-2">
-                    <span class="status-dot status-online"></span> 12 Units Active
-                </span>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <template x-for="model in models" :key="model.name">
-                    <div class="card p-5 rounded-xl relative overflow-hidden group" :class="model.load > 80 ? 'border-amber-500/30' : ''">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 blur-[40px] rounded-full pointer-events-none group-hover:bg-blue-500/10 transition-colors"></div>
-                        <div class="flex justify-between items-start mb-4 relative z-10">
-                            <div>
-                                <h3 class="font-bold text-sm tracking-tight" x-text="model.name"></h3>
-                                <p class="text-[10px] text-gray-500 uppercase tracking-widest font-bold mt-0.5" x-text="model.role"></p>
-                            </div>
-                            <span :class="'status-dot ' + getStatusClass(model.status)"></span>
-                        </div>
-                        <div class="space-y-3 relative z-10">
-                            <div class="w-full bg-black/50 rounded-full h-1.5 overflow-hidden border border-white/5">
-                                <div class="h-full rounded-full transition-all duration-1000 ease-out" 
-                                     :class="model.load > 80 ? 'bg-amber-500 shadow-[0_0_8px_#F59E0B]' : 'bg-blue-600 shadow-[0_0_8px_#3B82F6]'"
-                                     :style="'width: ' + model.load + '%'"></div>
-                            </div>
-                            <div class="flex justify-between text-[10px] font-bold mono">
-                                <span class="text-gray-500">UTIL: <span class="text-gray-300" x-text="model.load + '%'"></span></span>
-                                <span class="text-gray-500" x-text="model.uptime"></span>
-                            </div>
-                        </div>
+        <main>
+            <div class="dashboard-grid">
+                <!-- Financial Command -->
+                <div class="card" style="grid-column: span 4;">
+                    <h3 class="card-title">Financial Command</h3>
+                    <div id="financial-grid">
+                        <!-- Injected by app.js -->
                     </div>
-                </template>
-            </div>
-        </section>
-
-        <!-- Enterprise Kanban Board -->
-        <section>
-            <div class="flex items-center gap-3 mb-6">
-                <h2 class="text-sm font-bold uppercase tracking-[0.3em] text-gray-400">Enterprise Logistics Board</h2>
-                <div class="h-[1px] w-24 bg-gray-800"></div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <template x-for="column in kanban" :key="column.title">
-                    <div class="flex flex-col gap-6">
-                        <div class="flex justify-between items-center px-2">
-                            <span class="text-xs font-black uppercase tracking-[0.2em] text-gray-500" x-text="column.title"></span>
-                            <span class="text-[10px] font-bold bg-[#1E293B] px-2.5 py-1 rounded text-gray-300 mono" x-text="column.tasks.length"></span>
-                        </div>
-                        <div class="space-y-4 min-h-[500px] p-2 rounded-xl bg-black/20 border border-white/5">
-                            <template x-for="task in column.tasks" :key="task.id">
-                                <div class="card p-5 rounded-xl border-l-4 hover:translate-x-2 cursor-pointer group" 
-                                     :style="'border-left-color: ' + task.color"
-                                     @click="openTask(task)">
-                                    <div class="flex justify-between items-start mb-3">
-                                        <h4 class="text-xs font-bold leading-relaxed group-hover:text-blue-400 transition-colors" x-text="task.title"></h4>
-                                        <svg class="w-3 h-3 text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
-                                    </div>
-                                    
-                                    <!-- Progress Mini-Bar -->
-                                    <div class="mb-3" x-show="task.subtasks && task.subtasks.length">
-                                        <div class="flex justify-between text-[8px] uppercase font-black text-gray-600 mb-1">
-                                            <span>Progress</span>
-                                            <span x-text="calculateProgress(task) + '%'"></span>
-                                        </div>
-                                        <div class="w-full bg-black h-1 rounded-full overflow-hidden">
-                                            <div class="h-full bg-blue-500 transition-all duration-500" :style="'width: ' + calculateProgress(task) + '%'"></div>
-                                        </div>
-                                    </div>
-
-                                    <div class="flex justify-between items-center">
-                                        <div class="flex flex-wrap gap-1.5">
-                                            <template x-for="tag in task.tags">
-                                                <span class="text-[8px] font-black bg-black border border-white/10 px-2 py-0.5 rounded text-gray-400 uppercase tracking-tighter" x-text="tag"></span>
-                                            </template>
-                                        </div>
-                                        <span class="text-[9px] font-bold text-gray-600 mono" x-text="task.id"></span>
-                                    </div>
-                                </div>
-                            </template>
-                            <button class="w-full py-4 border-2 border-dashed border-[#1E293B] rounded-xl text-gray-600 text-[10px] font-black uppercase tracking-[0.2em] hover:text-blue-500 hover:border-blue-500/50 hover:bg-blue-500/5 transition-all">
-                                + Deploy Task
-                            </button>
-                        </div>
-                    </div>
-                </template>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- Query Audit Modal -->
-    <div x-show="showAudit" 
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0"
-         class="fixed inset-0 z-[100] flex items-center justify-center p-6 modal-overlay" 
-         x-cloak
-         @keydown.escape.window="showAudit = false">
-        <div class="card w-full max-w-4xl max-h-[80vh] rounded-2xl overflow-hidden flex flex-col shadow-2xl border-blue-500/20" @click.away="showAudit = false">
-            <div class="p-6 border-b border-[#1E293B] flex justify-between items-center bg-[#0B0E14]">
-                <div>
-                    <h2 class="text-xl font-black uppercase tracking-tighter italic">Query Financial Audit</h2>
-                    <p class="text-xs text-gray-500 mt-1 uppercase tracking-widest font-bold">Real-time Cost-per-LLM Breakdown</p>
                 </div>
-                <button @click="showAudit = false" class="text-gray-500 hover:text-white transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-            <div class="p-0 overflow-y-auto flex-1 bg-black">
-                <table class="w-full text-left border-collapse">
-                    <thead class="sticky top-0 bg-[#0B0E14] text-[10px] font-black uppercase tracking-widest text-gray-500">
-                        <tr>
-                            <th class="px-6 py-4 border-b border-[#1E293B]">Model Entity</th>
-                            <th class="px-6 py-4 border-b border-[#1E293B]">In / Out Tokens</th>
-                            <th class="px-6 py-4 border-b border-[#1E293B]">Latency</th>
-                            <th class="px-6 py-4 border-b border-[#1E293B]">Cost (USD)</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-xs font-medium text-gray-300 divide-y divide-[#1E293B]">
-                        <template x-for="log in auditLogs" :key="log.id">
-                            <tr class="hover:bg-blue-500/5 transition-colors group">
-                                <td class="px-6 py-4 mono">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-1 h-3 bg-blue-500 rounded-full"></div>
-                                        <span x-text="log.model"></span>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 text-gray-500">
-                                    <span class="text-gray-300" x-text="log.tokensIn"></span> / <span class="text-gray-300" x-text="log.tokensOut"></span>
-                                </td>
-                                <td class="px-6 py-4 text-gray-500" x-text="log.latency + 'ms'"></td>
-                                <td class="px-6 py-4 font-bold text-blue-400" x-text="'$' + log.cost.toFixed(5)"></td>
+
+                <!-- Model Spend -->
+                <div class="card" style="grid-column: span 4;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 class="card-title" style="margin-bottom: 0;">Operation Spend</h3>
+                        <span id="spend-total" style="font-size: 1.25rem; font-weight: 800; color: var(--accent-color);">$0.00</span>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 8px;">OVERNIGHT_DEV_LOOP</div>
+                    <div style="height: 4px; background: #2A2A2D; border-radius: 2px; overflow: hidden;">
+                        <div id="spend-progress" style="height: 100%; width: 0%; background: var(--accent-color); transition: width 0.5s;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.7rem; margin-top: 8px; font-weight: 600;">
+                        <span>$0.00</span>
+                        <span>$3.00 CAP</span>
+                    </div>
+                </div>
+
+                <!-- Neural Model Infrastructure -->
+                <div class="card" style="grid-column: span 12;">
+                    <h3 class="card-title">Neural Model Infrastructure</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>MODEL</th>
+                                <th>STATUS</th>
+                                <th style="text-align: right;">LATENCY</th>
+                                <th style="text-align: right;">LOAD</th>
                             </tr>
-                        </template>
-                    </tbody>
-                </table>
-            </div>
-            <div class="p-6 bg-[#0B0E14] border-t border-[#1E293B] flex justify-between items-center">
-                <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Aggregated for Session: <span class="text-blue-500" x-text="Date.now().toString().slice(-6)"></span></span>
-                <span class="text-sm font-black mono text-white">TOTAL: $142.82</span>
-            </div>
-        </div>
-    </div>
+                        </thead>
+                        <tbody id="model-status-list">
+                            <!-- Injected by app.js -->
+                        </tbody>
+                    </table>
+                </div>
 
-    <!-- Task Deep-Dive Modal -->
-    <div x-show="showTaskModal" 
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0 scale-95"
-         x-transition:enter-end="opacity-100 scale-100"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="opacity-100 scale-100"
-         x-transition:leave-end="opacity-0 scale-95"
-         class="fixed inset-0 z-[100] flex items-center justify-center p-6 modal-overlay" 
-         x-cloak
-         @keydown.escape.window="showTaskModal = false">
-        <div class="card w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl border-white/10" @click.away="showTaskModal = false">
-            <template x-if="selectedTask">
-                <div>
-                    <div class="p-8 border-b border-[#1E293B] relative" :style="'background: linear-gradient(to right, ' + selectedTask.color + '22, transparent)'">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-2 block" x-text="selectedTask.id"></span>
-                                <h2 class="text-2xl font-black tracking-tight leading-tight" x-text="selectedTask.title"></h2>
-                            </div>
-                            <button @click="showTaskModal = false" class="text-gray-500 hover:text-white transition-colors">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="p-8 space-y-8 bg-[#0B0E14]">
-                        <!-- Progress Tree -->
-                        <div>
-                            <div class="flex items-center justify-between mb-4">
-                                <h3 class="text-xs font-black uppercase tracking-[0.2em] text-blue-500">Progress Tree</h3>
-                                <span class="text-[10px] font-bold mono bg-blue-500/10 text-blue-400 px-2 py-1 rounded" x-text="calculateProgress(selectedTask) + '% COMPLETED'"></span>
-                            </div>
-                            <div class="space-y-4">
-                                <template x-for="(sub, index) in selectedTask.subtasks" :key="index">
-                                    <div class="relative pl-6">
-                                        <!-- Tree Connector -->
-                                        <div class="absolute left-[7px] top-0 bottom-0 w-0.5 bg-gray-800" x-show="index < selectedTask.subtasks.length - 1"></div>
-                                        <div class="absolute left-[7px] top-0 h-4 w-4 border-l-2 border-b-2 border-gray-800 rounded-bl-lg"></div>
-                                        
-                                        <label class="flex items-start gap-4 p-3 rounded-lg hover:bg-white/5 transition-colors cursor-pointer">
-                                            <input type="checkbox" x-model="sub.done" class="mt-1 w-4 h-4 rounded border-gray-700 bg-black text-blue-600 focus:ring-blue-500 ring-offset-black">
-                                            <div>
-                                                <span class="text-sm font-bold block" :class="sub.done ? 'text-gray-500 line-through' : 'text-gray-200'" x-text="sub.title"></span>
-                                                <span class="text-[10px] text-gray-600 uppercase tracking-widest font-bold" x-text="sub.assignee"></span>
-                                            </div>
-                                        </label>
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-
-                        <div class="flex gap-4">
-                            <button class="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-lg transition-all shadow-lg shadow-blue-600/20">Commit Changes</button>
-                            <button class="flex-1 py-3 border border-[#1E293B] hover:bg-white/5 text-gray-400 text-[10px] font-black uppercase tracking-[0.2em] rounded-lg transition-all">Archive Task</button>
-                        </div>
+                <!-- Global Sports -->
+                <div class="card" style="grid-column: span 4;">
+                    <h3 class="card-title">Global Sports Section</h3>
+                    <div id="sports-feed">
+                        <!-- Injected by app.js -->
                     </div>
                 </div>
-            </template>
-        </div>
+
+                <!-- Query Tracker -->
+                <div class="card" style="grid-column: span 8;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 class="card-title" style="margin-bottom: 0;">Functional Query Tracker</h3>
+                        <span style="font-size: 0.75rem; color: var(--accent-color); font-weight: 600; cursor: pointer;">View History</span>
+                    </div>
+                    <div id="query-list" style="border: 1px solid var(--border-color); border-radius: 8px; background: #0D0D0E;">
+                        <!-- Injected by app.js -->
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <script>
-        function missionControl() {
-            return {
-                showAudit: false,
-                showTaskModal: false,
-                selectedTask: null,
-                sportsScores: [
-                    { id: 1, league: 'NBA', teams: 'DET PISTONS @ MIA HEAT', score: '104 - 110', status: 'FINAL' },
-                    { id: 2, league: 'NBA', teams: 'GSW @ LAL', score: '88 - 92', status: '3RD QTR' },
-                    { id: 3, league: 'NFL', teams: 'DET LIONS @ SF 49ERS', score: '31 - 34', status: 'FINAL' },
-                    { id: 4, league: 'NBA', teams: 'DAL @ PHX', score: '45 - 42', status: '2ND QTR' },
-                    { id: 5, league: 'NFL', teams: 'KC @ BAL', score: '17 - 10', status: 'FINAL' },
-                    { id: 6, league: 'NHL', teams: 'DET RED WINGS @ EDM OILERS', score: '2 - 3', status: '2ND PER' },
-                ],
-                models: [
-                    { name: 'Pony-Alpha-01', role: 'Executive Command', status: 'online', load: 14, uptime: '14d 2h' },
-                    { name: 'Claude-3.5-Sonnet', role: 'Architect Specialist', status: 'online', load: 45, uptime: '2d 18h' },
-                    { name: 'GPT-4o-Canvas', role: 'Creative Specialist', status: 'busy', load: 92, uptime: '8d 4h' },
-                    { name: 'Gemini-1.5-Pro', role: 'Analysis Specialist', status: 'online', load: 68, uptime: '45d 1h' },
-                    { name: 'DeepSeek-V3', role: 'Logic Specialist', status: 'online', load: 31, uptime: '1d 12h' },
-                    { name: 'O1-Preview', role: 'Reasoning Engine', status: 'busy', load: 98, uptime: '5h 12m' },
-                    { name: 'Llama-3.1-405B', role: 'Heavy Compute', status: 'online', load: 12, uptime: '122d 9h' },
-                    { name: 'Local-Mistral', role: 'Edge Unit', status: 'offline', load: 0, uptime: '0s' }
-                ],
-                auditLogs: [
-                    { id: 1, model: 'Pony-Alpha-01', tokensIn: 1240, tokensOut: 850, latency: 420, cost: 0.01540 },
-                    { id: 2, model: 'GPT-4o', tokensIn: 5400, tokensOut: 2100, latency: 1100, cost: 0.04500 },
-                    { id: 3, model: 'Claude-3.5-Sonnet', tokensIn: 890, tokensOut: 1450, latency: 850, cost: 0.01230 },
-                    { id: 4, model: 'O1-Preview', tokensIn: 12000, tokensOut: 4500, latency: 15400, cost: 0.85000 },
-                    { id: 5, model: 'Gemini-1.5-Pro', tokensIn: 3200, tokensOut: 1100, latency: 920, cost: 0.02100 },
-                    { id: 6, model: 'DeepSeek-V3', tokensIn: 4500, tokensOut: 3200, latency: 1200, cost: 0.00840 },
-                    { id: 7, model: 'Llama-3.1-405B', tokensIn: 1500, tokensOut: 600, latency: 2100, cost: 0.01800 },
-                ],
-                kanban: [
-                    {
-                        title: 'Fleet Backlog',
-                        tasks: [
-                            { 
-                                id: 'TSK-102', 
-                                title: 'Quantum Encryption Protocol Implementation', 
-                                tags: ['SEC', 'HIGH'], 
-                                color: '#6366F1',
-                                subtasks: [
-                                    { title: 'Entropy Source Validation', done: true, assignee: 'Pony-01' },
-                                    { title: 'Key Exchange Handshake Debug', done: false, assignee: 'Claude-3.5' },
-                                    { title: 'Post-Quantum Alg Testing', done: false, assignee: 'O1' }
-                                ]
-                            },
-                            { 
-                                id: 'TSK-105', 
-                                title: 'Legacy DB Vectorization Phase II', 
-                                tags: ['DATA'], 
-                                color: '#64748B',
-                                subtasks: [
-                                    { title: 'Schema Mapping', done: true, assignee: 'DeepSeek' },
-                                    { title: 'Embedding Generation', done: false, assignee: 'Llama-3.1' }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        title: 'Active Ops',
-                        tasks: [
-                            { 
-                                id: 'TSK-088', 
-                                title: 'Neural Net Optimization & Pruning', 
-                                tags: ['CORE', 'URGENT'], 
-                                color: '#EF4444',
-                                subtasks: [
-                                    { title: 'Weight Clustering Analysis', done: true, assignee: 'Gemini-Pro' },
-                                    { title: 'Bit-Width Reduction', done: true, assignee: 'Gemini-Pro' },
-                                    { title: 'Latency Benchmarking', done: false, assignee: 'Pony-01' }
-                                ]
-                            },
-                            { 
-                                id: 'TSK-092', 
-                                title: 'Financial Audit Report Q1 2026', 
-                                tags: ['FIN'], 
-                                color: '#10B981',
-                                subtasks: [
-                                    { title: 'Token Usage Aggregation', done: true, assignee: 'Analyst-G1' },
-                                    { title: 'Cost-Per-Project Allocation', done: true, assignee: 'Analyst-G1' },
-                                    { title: 'Executive Summary Generation', done: false, assignee: 'Pony-01' }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        title: 'Validation',
-                        tasks: [
-                            { 
-                                id: 'TSK-074', 
-                                title: 'Multi-Agent Sync Protocol v2', 
-                                tags: ['COMM'], 
-                                color: '#F59E0B',
-                                subtasks: [
-                                    { title: 'Peer-to-Peer Discovery', done: true, assignee: 'Sync-Node' },
-                                    { title: 'Conflict Resolution Logic', done: true, assignee: 'Logic-Gate' },
-                                    { title: 'Network Partition Stress Test', done: false, assignee: 'Worker-882' }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        title: 'Deployed',
-                        tasks: [
-                            { 
-                                id: 'TSK-042', 
-                                title: 'Enterprise Glass-UI Overhaul', 
-                                tags: ['UI'], 
-                                color: '#3B82F6',
-                                subtasks: [
-                                    { title: 'Blur Filter Optimization', done: true, assignee: 'Visionary-S' },
-                                    { title: 'Typography Refresh', done: true, assignee: 'Visionary-S' }
-                                ]
-                            }
-                        ]
-                    }
-                ],
-                getStatusClass(status) {
-                    if (status === 'online') return 'status-online';
-                    if (status === 'busy') return 'status-busy';
-                    return 'status-offline';
-                },
-                openTask(task) {
-                    this.selectedTask = task;
-                    this.showTaskModal = true;
-                },
-                calculateProgress(task) {
-                    if (!task.subtasks || task.subtasks.length === 0) return 0;
-                    const done = task.subtasks.filter(s => s.done).length;
-                    return Math.round((done / task.subtasks.length) * 100);
-                }
-            }
-        }
-    </script>
+    <script src="js/app.js"></script>
 </body>
 </html>

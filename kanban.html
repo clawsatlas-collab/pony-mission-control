@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORBITAL COMMAND | Operations</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo">Orbital Command</div>
+            <nav class="nav-links">
+                <a href="index.html">Dashboard</a>
+                <a href="kanban.html" class="active">Operations</a>
+                <a href="#">Intelligence</a>
+                <a href="#">Logistics</a>
+            </nav>
+            <div style="font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary);">
+                OPS_CLOCK: <span id="clock" style="color: var(--text-primary)">--:--:--</span>
+            </div>
+        </header>
+
+        <div class="kanban-layout">
+            <!-- Left Sidebar: Agents -->
+            <aside class="sidebar">
+                <h3 class="card-title">Agents</h3>
+                <div id="agent-list">
+                    <!-- Injected by app.js -->
+                </div>
+            </aside>
+
+            <!-- Center: Kanban -->
+            <main class="kanban-board">
+                <div class="kanban-column">
+                    <div class="column-header">
+                        <span class="column-title">Inbox</span>
+                        <span id="count-inbox" style="font-size: 0.7rem; color: var(--text-secondary);">0</span>
+                    </div>
+                    <div id="col-inbox" class="kanban-list" data-status="inbox"></div>
+                </div>
+                <div class="kanban-column">
+                    <div class="column-header">
+                        <span class="column-title">Assigned</span>
+                        <span id="count-assigned" style="font-size: 0.7rem; color: var(--text-secondary);">0</span>
+                    </div>
+                    <div id="col-assigned" class="kanban-list" data-status="assigned"></div>
+                </div>
+                <div class="kanban-column">
+                    <div class="column-header">
+                        <span class="column-title">In Progress</span>
+                        <span id="count-in_progress" style="font-size: 0.7rem; color: var(--text-secondary);">0</span>
+                    </div>
+                    <div id="col-in_progress" class="kanban-list" data-status="in_progress"></div>
+                </div>
+                <div class="kanban-column">
+                    <div class="column-header">
+                        <span class="column-title">Review</span>
+                        <span id="count-review" style="font-size: 0.7rem; color: var(--text-secondary);">0</span>
+                    </div>
+                    <div id="col-review" class="kanban-list" data-status="review"></div>
+                </div>
+                <div class="kanban-column">
+                    <div class="column-header">
+                        <span class="column-title">Done</span>
+                        <span id="count-done" style="font-size: 0.7rem; color: var(--text-secondary);">0</span>
+                    </div>
+                    <div id="col-done" class="kanban-list" data-status="done"></div>
+                </div>
+            </main>
+
+            <!-- Right Sidebar: Feed & Docs -->
+            <aside class="sidebar sidebar-right">
+                <div style="margin-bottom: 32px;">
+                    <h3 class="card-title">Live Feed</h3>
+                    <div id="live-feed">
+                        <!-- Injected by app.js -->
+                    </div>
+                </div>
+                <div>
+                    <h3 class="card-title">Documents</h3>
+                    <div id="docs-list">
+                        <!-- Injected by app.js -->
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <div id="addTaskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="card-title" style="margin-bottom: 0;">Deploy New Task</h3>
+            </div>
+            <form id="addTaskForm">
+                <div class="form-group">
+                    <label>Task Title</label>
+                    <input type="text" id="taskTitle" placeholder="e.g., Sentiment analysis run" required>
+                </div>
+                <div class="form-group">
+                    <label>Priority</label>
+                    <select id="taskPriority">
+                        <option>Low</option>
+                        <option>Med</option>
+                        <option>High</option>
+                        <option>Critical</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Assigned Agent</label>
+                    <select id="taskAgent">
+                        <option>Manish</option>
+                        <option>Friday</option>
+                        <option>Jarvis</option>
+                        <option>Loki</option>
+                        <option>Vision</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Initialize Operation</button>
+                <button type="button" onclick="closeModal()" style="background: transparent; border: none; color: var(--text-secondary); margin-top: 12px; cursor: pointer; width: 100%; font-size: 0.75rem;">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Simple clock
+        setInterval(() => {
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+        }, 1000);
+    </script>
+</body>
+</html>
